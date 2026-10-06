@@ -7,6 +7,7 @@ const products = [
     highlights: ['Sursă rapidă de energie pentru perioadele cu apă caldă.', 'Granulația lucrează pe substrat și eliberează treptat aromele fără să sature peștii.', 'Creează o zonă de hrănire activă, atractivă de la distanță.'],
     prep: ['Adaugă 150–170 ml apă și amestecă energic. Lasă 10 minute.', 'Adaugă încă 120 ml apă, amestecă și lasă din nou 10 minute.', 'Trece nada prin sită pentru a sparge bulgării și a obține o textură aerată.'],
     tip: 'Pe caniculă, înlocuiește o parte din apă cu aditivul lichid Pellet Strike.',
+    // outOfStock: true, // Decomentează linia pentru a afișa „Stoc epuizat”.
     photos: ['nada-cereale.jpg', 'cereale-produs.jpg', 'cereale-nada-pe-masa.jpg'],
     alts: ['Nadă Pellet Strike Cereale, ambalaj de 800 g', 'Punga Pellet Strike Cereale fotografiată pe masă', 'Nadă Cereale Pellet Strike turnată pe masă lângă ambalaj'],
   },
@@ -16,6 +17,7 @@ const products = [
     highlights: ['Aport consistent de proteine din făină de pește.', 'Ingrediente ușor digestibile pentru hrănire susținută.', 'Potrivită pe ape cu presiune mare și în partidele de primăvară, vară sau toamnă.'],
     prep: ['Adaugă 150–170 ml apă și amestecă energic. Lasă 10 minute.', 'Adaugă încă 120 ml apă, amestecă și lasă din nou 10 minute.', 'Trece nada prin sită pentru a sparge bulgării și a obține o desfacere uniformă pe substrat.'],
     tip: 'Pentru method feeder, combin-o în proporție de 50/50 cu pelete Pellet Strike de 2 mm.',
+    outOfStock: true,
     photos: ['nada-fishmeal.jpg', 'fishmeal-produs.jpg', 'fishmeal-nada-pe-masa.jpg'],
     alts: ['Nadă Pellet Strike cu făină de pește, ambalaj de 800 g', 'Punga Pellet Strike Fishmeal fotografiată pe masă', 'Nadă Fishmeal Pellet Strike turnată pe masă lângă ambalaj'],
   },
@@ -25,6 +27,7 @@ const products = [
     highlights: ['Se combină cu nadele Pellet Strike Cereale sau Fishmeal.', 'Pot fi folosite simple, în method feeder sau în pungi PVA.', 'Mecanica preparată eliberează treptat atractanții pe substrat.'],
     prep: ['Acoperă complet peletele cu apă.', 'Lasă-le la înmuiat 2 minute.', 'Scurge apa în exces și lasă-le 10–15 minute la odihnit, până când umiditatea pătrunde uniform.'],
     tip: 'Regulă simplă: aproximativ 1 minut de înmuiere pentru fiecare milimetru de diametru.',
+    // outOfStock: true, // Decomentează linia pentru a afișa „Stoc epuizat”.
     photos: ['pelete-2mm.jpg', 'pelete-produs.jpg', 'pelete-pelete-pe-masa.jpg'],
     alts: ['Pelete Pellet Strike de 2 mm în ambalaj de 800 g', 'Punga Pellet Strike Pelete 2 mm fotografiată pe masă', 'Pelete de 2 mm Pellet Strike turnate pe masă lângă ambalaj'],
   },
@@ -34,6 +37,7 @@ const products = [
     highlights: ['Atractanți declarați ca naturali și aromă dulce persistentă.', 'Solubil și potrivit pentru nade sau pelete.', 'Util în sezonul cald și în apa rece, când peștii sunt apatici.'],
     prep: ['Dozaj recomandat: 60 ml la 800 g de nadă uscată sau pelete de 2 mm.', 'Dizolvă aditivul în apa pentru umectare sau înmuiere.', 'Amestecă bine lichidul în apă înainte să îl torni peste nadă.'],
     tip: 'Pentru pelete, pune aditivul în apa de înmuiere, apoi lasă peletele la hidratat 2 minute.',
+    // outOfStock: true, // Decomentează linia pentru a afișa „Stoc epuizat”.
     photos: ['aditiv.jpg', 'aditiv-produs.jpg'],
     alts: ['Aditiv Pellet Strike în recipient de 250 ml', 'Recipientul cu aditiv Pellet Strike fotografiat pe masă'],
   },
@@ -77,7 +81,7 @@ function renderProducts(query = '') {
   grid.innerHTML = visibleProducts.map((product) => `
     <article class="product-card">
       <div class="card-top"><span>${product.label}</span><span class="card-index">${product.id}</span></div>
-      <div class="product-photo-frame"><img class="product-photo" src="./public/products/${product.photos[0]}" alt="${product.alts[0]}" loading="lazy" decoding="async" /></div>
+      <div class="product-photo-frame${product.outOfStock ? ' is-out-of-stock' : ''}"><img class="product-photo" src="./public/products/${product.photos[0]}" alt="${product.alts[0]}" loading="lazy" decoding="async" />${product.outOfStock ? '<span class="stock-badge">STOC EPUIZAT</span>' : ''}</div>
       <div class="card-copy">
         <p class="card-kicker">PELLET STRIKE</p>
         <h3>${product.name}</h3>
@@ -88,7 +92,7 @@ function renderProducts(query = '') {
         <span class="card-tag">PELLET STRIKE</span>
         <div class="card-actions">
           <button class="detail-button" type="button" data-action="details" data-product="${product.id}">Detalii <span aria-hidden="true">↗</span></button>
-          <button class="add-cart-button" type="button" data-action="add" data-product="${product.id}">Adaugă în coș <span aria-hidden="true">＋</span></button>
+          <button class="add-cart-button" type="button" data-action="add" data-product="${product.id}"${product.outOfStock ? ' disabled' : ''}>${product.outOfStock ? 'Stoc epuizat' : 'Adaugă în coș'}${product.outOfStock ? '' : ' <span aria-hidden="true">＋</span>'}</button>
         </div>
       </div>
     </article>
@@ -122,6 +126,7 @@ function checkoutMessage() {
 }
 
 function updateCart(productId, action) {
+  if (products.find((product) => product.id === productId)?.outOfStock) return;
   const current = cart.get(productId) || 0;
   if (action === 'add' || action === 'increase') cart.set(productId, current + 1);
   if (action === 'decrease') current <= 1 ? cart.delete(productId) : cart.set(productId, current - 1);
@@ -145,8 +150,9 @@ function openProductDialog(productId, trigger) {
   dialogHighlights.innerHTML = product.highlights.map((item) => `<li>${item}</li>`).join('');
   dialogPrep.innerHTML = product.prep.map((item) => `<li>${item}</li>`).join('');
   dialogTip.textContent = product.tip;
-  dialogOrder.textContent = 'Adaugă în coș';
+  dialogOrder.textContent = product.outOfStock ? 'Stoc epuizat' : 'Adaugă în coș';
   dialogOrder.dataset.product = product.id;
+  dialogOrder.disabled = Boolean(product.outOfStock);
   dialog.showModal();
   closeDialogButton.focus();
 }
